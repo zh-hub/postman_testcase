@@ -1,0 +1,459 @@
+{
+	"info": {
+		"_postman_id": "a408ed7c-88db-4031-a123-2011bc55ecaf",
+		"name": "WMS-API",
+		"description": " 仓储系统，仓储服务",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "库存管理",
+			"item": [
+				{
+					"name": "入库接收",
+					"item": [
+						{
+							"name": "通过物品编号获取待接收物品",
+							"item": [
+								{
+									"name": "正常-成功获取待入库物品",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "5de3e065-f352-4866-b925-39dfbfd7b61e",
+												"exec": [
+													"",
+													"pm.test(\"检查是否获取到待入库物品\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.data.validProductList[0].status).to.eql(\"待入库\");",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://uat-gw-gw-wms.aihuishou.com/wms-api/operational-transfer/product/getByProductNo?warehouseId=56&productNo=20200106152544872379",
+											"protocol": "http",
+											"host": [
+												"uat-gw-gw-wms",
+												"aihuishou",
+												"com"
+											],
+											"path": [
+												"wms-api",
+												"operational-transfer",
+												"product",
+												"getByProductNo"
+											],
+											"query": [
+												{
+													"key": "warehouseId",
+													"value": "56"
+												},
+												{
+													"key": "productNo",
+													"value": "20200106152544872379"
+												}
+											]
+										}
+									},
+									"response": []
+								},
+								{
+									"name": "异常-物品已被等级仓接收",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "7e36ef49-686e-4392-978e-5fb1f55b2baf",
+												"exec": [
+													"//断言检查，检查物品是否已被等级仓接收（处于等级仓部门）",
+													"",
+													"pm.test(\"Your test name\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.resultMessage).to.eql(\"物品处于【等级仓】部门\");",
+													"});",
+													"",
+													"//获取resultMessage的值",
+													"let json = JSON.parse(responseBody);",
+													"let resultmessage = json.resultMessage;",
+													"console.log(resultmessage);"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://{{fip}}/wms-api/operational-transfer/product/getByProductNo?warehouseId=56&productNo=20200108182813775743",
+											"protocol": "http",
+											"host": [
+												"{{fip}}"
+											],
+											"path": [
+												"wms-api",
+												"operational-transfer",
+												"product",
+												"getByProductNo"
+											],
+											"query": [
+												{
+													"key": "warehouseId",
+													"value": "56"
+												},
+												{
+													"key": "productNo",
+													"value": "20200108182813775743"
+												}
+											]
+										},
+										"description": "获取待入库的物品不存在时，接口返回code：9999"
+									},
+									"response": []
+								},
+								{
+									"name": "异常-物品流向等级仓但处于其他部门还没有移交",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "7060da51-70a9-4c49-92c9-ad68184fb032",
+												"exec": [
+													"//物品流向等级仓，但没有移交，还处于其他部门",
+													"pm.test(\"Body matches string\", function () {",
+													"    pm.expect(pm.response.text()).to.include(\"物品处于【\");",
+													"});"
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://{{fip}}/wms-api/operational-transfer/product/getByProductNo?warehouseId=56&productNo=20200113112513621351",
+											"protocol": "http",
+											"host": [
+												"{{fip}}"
+											],
+											"path": [
+												"wms-api",
+												"operational-transfer",
+												"product",
+												"getByProductNo"
+											],
+											"query": [
+												{
+													"key": "warehouseId",
+													"value": "56"
+												},
+												{
+													"key": "productNo",
+													"value": "20200113112513621351"
+												}
+											]
+										},
+										"description": "物品处于定级质检、隐私清除、等部门，流向等级仓，但没有移交"
+									},
+									"response": []
+								},
+								{
+									"name": "异常-待接收的物品不存在",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "c95dc265-d2e6-442b-a0d2-1977b40366f2",
+												"exec": [
+													"//待接收物品不存在",
+													"pm.test(\"Your test name\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.code).to.eql(9999);",
+													"    pm.expect(pm.response.text()).to.include(\"物品\");",
+													"    pm.expect(pm.response.text()).to.include(\"不存在\");",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://{{fip}}/wms-api/operational-transfer/product/getByProductNo?warehouseId=56&productNo=2019121314240475821",
+											"protocol": "http",
+											"host": [
+												"{{fip}}"
+											],
+											"path": [
+												"wms-api",
+												"operational-transfer",
+												"product",
+												"getByProductNo"
+											],
+											"query": [
+												{
+													"key": "warehouseId",
+													"value": "56"
+												},
+												{
+													"key": "productNo",
+													"value": "2019121314240475821"
+												}
+											]
+										},
+										"description": "物品不存在"
+									},
+									"response": []
+								},
+								{
+									"name": "异常-待接收物品不处于当前仓库",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "ae3ff074-4054-412b-acd2-177d3bca0a75",
+												"exec": [
+													"pm.test(\"Your test name\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.code).to.eql(9999);",
+													"    pm.expect(pm.response.text()).to.include(\"物品不属于\");",
+													"    pm.expect(pm.response.text()).to.include(\"运营中心\");",
+													"});",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://{{fip}}/wms-api/operational-transfer/product/getByProductNo?warehouseId=323&productNo=20200113115331776118",
+											"protocol": "http",
+											"host": [
+												"{{fip}}"
+											],
+											"path": [
+												"wms-api",
+												"operational-transfer",
+												"product",
+												"getByProductNo"
+											],
+											"query": [
+												{
+													"key": "warehouseId",
+													"value": "323"
+												},
+												{
+													"key": "productNo",
+													"value": "20200113115331776118"
+												}
+											]
+										},
+										"description": "待接收物品不处于当前仓库"
+									},
+									"response": []
+								},
+								{
+									"name": "异常-没有选择仓库",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "501df5cd-606d-4f11-ac95-a47aa87caa2d",
+												"exec": [
+													"//没有选择仓库校验",
+													"pm.test(\"Your test name\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.code).to.eql(500);",
+													"    pm.expect(jsonData.resultMessage).to.eql(\"to_choose_one_warehouse\");",
+													"});",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://{{fip}}/wms-api/operational-transfer/product/getByProductNo?warehouseId=&productNo=20200113115331776118",
+											"protocol": "http",
+											"host": [
+												"{{fip}}"
+											],
+											"path": [
+												"wms-api",
+												"operational-transfer",
+												"product",
+												"getByProductNo"
+											],
+											"query": [
+												{
+													"key": "warehouseId",
+													"value": ""
+												},
+												{
+													"key": "productNo",
+													"value": "20200113115331776118"
+												}
+											]
+										},
+										"description": "仓库为空，没有选择仓库"
+									},
+									"response": []
+								},
+								{
+									"name": "异常-没有登录session",
+									"event": [
+										{
+											"listen": "test",
+											"script": {
+												"id": "6a8739d3-afa8-4227-b1c2-f5db093d7ad8",
+												"exec": [
+													"//没有获取到登录session 时返回 true",
+													"pm.test(\"已经有了登录信息\", function () {",
+													"    var jsonData = pm.response.json();",
+													"    pm.expect(jsonData.code).to.eql(401);",
+													"    pm.expect(jsonData.resultMessage).to.eql(\"please_log_in_first\");",
+													"});",
+													"",
+													""
+												],
+												"type": "text/javascript"
+											}
+										}
+									],
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://{{fip}}/wms-api/operational-transfer/product/getByProductNo?warehouseId=56&productNo=20200113115331776118",
+											"protocol": "http",
+											"host": [
+												"{{fip}}"
+											],
+											"path": [
+												"wms-api",
+												"operational-transfer",
+												"product",
+												"getByProductNo"
+											],
+											"query": [
+												{
+													"key": "warehouseId",
+													"value": "56"
+												},
+												{
+													"key": "productNo",
+													"value": "20200113115331776118"
+												}
+											]
+										},
+										"description": "物品没有获取到登录session"
+									},
+									"response": []
+								}
+							],
+							"description": "WMS-库存管理-入库接收-通过物品编号接收-获取待接收物品",
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						},
+						{
+							"name": "通过中转箱号获取待接收物品",
+							"item": [
+								{
+									"name": "正常-通过中转箱号成功获取仓库待接收物品编号",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": "http://{{fip}}/wms-api/operational-transfer/product/getByRelayBoxNo?warehouseId=56&relayBoxNo=2312899",
+											"protocol": "http",
+											"host": [
+												"{{fip}}"
+											],
+											"path": [
+												"wms-api",
+												"operational-transfer",
+												"product",
+												"getByRelayBoxNo"
+											],
+											"query": [
+												{
+													"key": "warehouseId",
+													"value": "56"
+												},
+												{
+													"key": "relayBoxNo",
+													"value": "2312899"
+												}
+											]
+										},
+										"description": "正常场景"
+									},
+									"response": []
+								},
+								{
+									"name": "异常-中转箱中有部分物品不可接收",
+									"request": {
+										"method": "GET",
+										"header": [],
+										"url": {
+											"raw": ""
+										},
+										"description": "中转箱中有部分物品待等级仓接收，有部分物品非等级仓待接收"
+									},
+									"response": []
+								}
+							],
+							"description": "入库接收时，通过中转箱号获取待接收物品",
+							"protocolProfileBehavior": {},
+							"_postman_isSubFolder": true
+						}
+					],
+					"protocolProfileBehavior": {},
+					"_postman_isSubFolder": true
+				}
+			],
+			"protocolProfileBehavior": {}
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "66a506d6-fa23-48d4-82f2-a489a942ccf8",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "78e68b8c-834a-4354-b9aa-f9c2c16aa779",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
